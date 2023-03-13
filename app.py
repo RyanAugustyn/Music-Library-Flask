@@ -25,23 +25,36 @@ Migrate(app, db)
 # Models
 class Song(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    title = db.Column(db.String(255))
+    title = db.Column(db.String(255), nullable=False)
     artist = db.Column(db.String(255))
     album = db.Column(db.String(255))
     release_date = db.Column(db.Date)
     genre = db.Column(db.String(255))
 
-
+    def __repr__(self):
+        return f'{self.title} {self.artist} {self.album} {self.release_date} {self.genre}'
 
 # Schemas
+class SongSchema(ma.Schema):
+    class Meta:
+        fields = ("id", "title", "artist", "album", "release_date", "genre")
+
+song_schema = SongSchema()
+songs_schema = SongSchema(many=True)
 
 #create_song() method 
 
 
 
-
 # Resources
+class SongListResource(Resource):
+    def get(self):
+        all_songs = Song.query.all()
+        return songs_schema.dump(all_songs)
+
+
 
 
 
 # Routes
+api.add_resource(SongListResource, '/api/songs')
