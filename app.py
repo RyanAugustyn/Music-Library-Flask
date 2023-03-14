@@ -89,18 +89,29 @@ class SongResource(Resource):
         if "genre" in request.json:
             song.genre = request.json["genre"]
         if "likes" in request.json:
-            if song.likes == None:
-                song.likes = 1
-            else:
-                song.likes += 1
+            song.likes = request.json["likes"]
         db.session.commit()
         return song_schema.dump(song), 200
     
     def delete(self, song_id):
         song = Song.query.get_or_404(song_id)
         db.session.delete(song)
+        db.session.commit()
         return '', 204
+
+class SongLikeResource(Resource):
+    def put(self, song_id):
+        song = Song.query.get_or_404(song_id)
+        if "likes" in request.json:
+            if song.likes == None:
+                song.likes = 1
+            else:
+                song.likes += 1
+        db.session.commit()
+        return song_schema.dump(song), 200
+
 
 # Routes
 api.add_resource(SongListResource, '/api/songs')
 api.add_resource(SongResource, '/api/songs/<int:song_id>')
+api.add_resource(SongLikeResource, '/api/songs/<int:song_id>/like')

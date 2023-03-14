@@ -149,7 +149,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "    {\r\n        \"album\": \"Where Have All the Merrymakers Gone?\",\r\n        \"title\": \"Flagpole Sitta\",\r\n        \"id\": 2,\r\n        \"genre\": \"90s Music\",\r\n        \"release_date\": \"1997-07-27\",\r\n        \"artist\": \"Harvey Danger\"\r\n    }",
+					"raw": "    {\r\n        \"likes\": 1\r\n    }",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -157,7 +157,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:5000/api/songs/2",
+					"raw": "http://127.0.0.1:5000/api/songs/3/like",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -169,7 +169,8 @@
 					"path": [
 						"api",
 						"songs",
-						"2"
+						"3",
+						"like"
 					]
 				}
 			},
