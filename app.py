@@ -31,6 +31,7 @@ class Song(db.Model):
     album = db.Column(db.String(255))
     release_date = db.Column(db.Date)
     genre = db.Column(db.String(255))
+    likes = db.Column(db.Integer)
 
     def __repr__(self):
         return f'{self.title} {self.artist} {self.album} {self.release_date} {self.genre}'
@@ -42,8 +43,9 @@ class SongSchema(ma.Schema):
     artist = fields.String()
     release_date = fields.Date()
     genre = fields.String()
+    likes = fields.Integer()
     class Meta:
-        fields = ("id", "title", "artist", "album", "release_date", "genre")
+        fields = ("id", "title", "artist", "album", "release_date", "genre", "likes")
 
     @post_load
     def create_song(self, data, **kwargs):
@@ -51,9 +53,6 @@ class SongSchema(ma.Schema):
 
 song_schema = SongSchema()
 songs_schema = SongSchema(many=True)
-
-#create_song() method 
-
 
 
 # Resources
@@ -76,15 +75,9 @@ class SongResource(Resource):
     def get(self, song_id):
         song = Song.query.get_or_404(song_id)
         return song_schema.dump(song), 200
-    
-    def delete(self, song_id):
-        song = Song.query.get_or_404(song_id)
-        db.session.delete(song)
-        return '', 204
 
     def put(self, song_id):
         song = Song.query.get_or_404(song_id)
-        # for x in ("id", "title", "artist", "album", "release_date", "genre"):
         if "title" in request.json:
             song.title = request.json["title"]
         if "artist" in request.json:
@@ -95,13 +88,18 @@ class SongResource(Resource):
             song.release_date = request.json["release_date"]
         if "genre" in request.json:
             song.genre = request.json["genre"]
-        
+        if "likes" in request.json:
+            if song.likes == None:
+                song.likes = 1
+            else:
+                song.likes += 1
         db.session.commit()
-        return song_schema.dump(song)
-
-
-
-
+        return song_schema.dump(song), 200
+    
+    def delete(self, song_id):
+        song = Song.query.get_or_404(song_id)
+        db.session.delete(song)
+        return '', 204
 
 # Routes
 api.add_resource(SongListResource, '/api/songs')
