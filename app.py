@@ -32,9 +32,10 @@ class Song(db.Model):
     release_date = db.Column(db.Date)
     genre = db.Column(db.String(255))
     likes = db.Column(db.Integer)
+    running_time = db.Column(db.Integer)
 
     def __repr__(self):
-        return f'{self.title} {self.artist} {self.album} {self.release_date} {self.genre}'
+        return f'{self.title} {self.artist} {self.album} {self.release_date} {self.genre} {self.running_time}'
 
 # Schemas
 class SongSchema(ma.Schema):
@@ -44,8 +45,9 @@ class SongSchema(ma.Schema):
     release_date = fields.Date()
     genre = fields.String()
     likes = fields.Integer()
+    running_time = fields.Integer()
     class Meta:
-        fields = ("id", "title", "artist", "album", "release_date", "genre", "likes")
+        fields = ("id", "title", "artist", "album", "release_date", "genre", "likes", "running_time")
 
     @post_load
     def create_song(self, data, **kwargs):
@@ -58,8 +60,18 @@ songs_schema = SongSchema(many=True)
 # Resources
 class SongListResource(Resource):
     def get(self):
+        custom_response = {}
+
         all_songs = Song.query.all()
-        return songs_schema.dump(all_songs), 200
+        total_running_time = 0
+        for song in all_songs:
+            total_running_time += song.running_time
+        
+        custom_response = {
+            "songs": songs_schema.dump(all_songs), 
+            "total_running_time": total_running_time/60
+            }
+        return custom_response, 200
     
     def post(self):
         song_json_data = request.get_json()
@@ -90,6 +102,8 @@ class SongResource(Resource):
             song.genre = request.json["genre"]
         if "likes" in request.json:
             song.likes = request.json["likes"]
+        if "running_time" in request.json:
+            song.running_time = request.json["running_time"]
         db.session.commit()
         return song_schema.dump(song), 200
     
